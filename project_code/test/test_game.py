@@ -61,3 +61,91 @@ class TestEvent(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+import unittest
+from unittest.mock import patch
+
+# Sample classes based on Week 2 code
+
+class TestCombatSystem(unittest.TestCase):
+
+    def setUp(self):
+        self.player = Character("Mario", health=100)
+        self.enemy = Character("Shadow Overlord", health=150)
+        self.combat = Combat(self.player, self.enemy)
+
+    @patch('random.randint', return_value=10)
+    def test_calculate_damage(self, mock_randint):
+        """ Test that calculate_damage returns expected mocked value"""
+        damage = self.combat.calculate_damage(self.player)
+        self.assertEqual(damage, 10, "Damage calculation should return 10 based on mock")
+
+    def test_engage_combat_player_win(self):
+        """ Test that engage_combat ends with player victory when enemy health goes to 0"""
+        self.enemy.health = 10 # Set low enemy health to simulate win
+        result = self.combat.engage_combat()
+        self.assertTrue(result, "Player should win if enemy reaches zero")
+
+    def test_engage_combat_player_loss(self):
+        """ Test that engage_combat ends with player defeat if player health reaches 0"""
+        self.player.health = 5
+        self.enemy.health = 10
+        result = self.combat.engage_combat()
+        self.assertFalse(result, "Player shoud lose if their health reaches zero")
+
+class TestInventory(unittest.TestCase):
+
+    def setUp(self):
+        self.inventory = Inventory()
+        self.item1 = Item(name="Health Potion", effect="heal")
+        self.item2 = Item(name="Power-up", effect="boost")
+
+    def test_add_item(self):
+        """ Test that items are added to inventory correctly """
+        self.inventory.add_item(self.item1)
+        self.inventory.add_item(self.item2)
+        self.assertEqual(len(self.inventory.items), 2, "Inventory should contain 2 items")
+        self.assertIn(self.item1, self.inventory.items, "Inventory shoudl contain item1")
+        self.assertIn(self.item2, self.inventory.items, "Inventory should contain item2")
+
+    def test_use_item(self):
+        """ Test  taht items are used and removed from inventory in FIFO order """
+        self.inventory.add_item(self.item1)
+        self.inventory.add_item(self.item2)
+        used_item = self.inventory.use_item()
+        self.assertEqual(used_item, self.item1, "First used item should be item1")
+        self.assertEqual(len(self.inventory.items), 1, "Inventory should have 1 item left after using one")
+
+class TestDialogueManager(unittest.TestCase):
+
+    def setUp(self):
+        self.dialogue_manager = DialogueManager()
+        self.npc = NPC(name="Wise Toad", dialogue="Thanks for helping us!")
+    
+    @patch('builtins.print')
+    def test_display_dialogue_help_center(self, mock_print):
+        """ Test that NPC gives correct response based on player choice """
+        self.dialogue_manager.display_dialogue(self.npc, "help")
+        mock_print.assert_called_with("Wise Toad: Thank you for your help, brace hero!")
+
+    @patch('builtins.print')
+    def test_display_ignore_choice(self, mock_print):
+        """ Test NPC's response when player chooses to ignore """
+        self.dialogue_manager.display_dialogue(self.npc, "ignore")
+        mock_print.assert_called_with("Wise Toad: I hope you would help... but I see you have other priorities.")
+
+class TestItem(unittest.TestCase):
+
+    def setUp(self):
+        self.character = Character("Luigi", 80)
+        self.item = Item(name="Healing Mushroom", effect="heal")
+
+    def test_apply_effect(self):
+        """ Test that item effect modifies character stats correctly """
+        initial_health = self.character.health
+        self.item.apply_effect(self.character)
+        self.assertEqual(self.character.health, initial_health + 20, "Health should increases by 20")
+
+# Main test runner
+if __name__ == "__main__":
+    unittest.main()

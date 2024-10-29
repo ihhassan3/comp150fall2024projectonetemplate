@@ -286,3 +286,108 @@ class Combat:
                 break
 
 # Character Classes for Player and Boss
+class Character:
+    def __init__(self, name, health):
+        self.name = name
+        self.health = health
+        self.inventory = Inventory()
+
+    def take_damage(self, amount):
+        self.health -= amount 
+        logging.info(f"{self.name} has {self.health} health remaining.")
+        return self.health > 0
+    
+    def use_item(self, item):
+        if item:
+            logging.info(f"{self.name} uses {item.name}!")
+            item.apply_effect(self)
+
+# Inventory Management with Edge Case Handling
+class Inventory:
+    def __init__(self):
+        self.items = []
+
+    def add_item(self, item):
+        self.items.append(item)
+
+    def get_item(self):
+        if self.items:
+            return self.items.pop(0) #Get the first item for simplicity
+        return None
+    
+class Item:
+    def __init__(self, name, effect):
+        self.name = name
+        self.effect = effect
+
+    def apply_effect(self, character):
+        if self.effect == "heal":
+            character.health += 20
+            logging.info(f"{character.name}'s health is now {character.health}.")
+
+#Simulated LLM Integration for Dialogue and Story
+class DialogueManager:
+    def display_dialogue(self, npc, player_choice):
+        npc_response = self.generate_npc_response(npc, player_choice)
+        logging.info(f"{npc.name}: {npc_response}")
+
+    def generate_npc_response(self, npc, player_choice):
+        # Simulate adaptive responses based on choices
+        if player_choice == "help":
+            return "Thank you, Brave warrior! I'll assist you in your joruney."
+        elif player_choice == "ignore":
+            return "How dissapointing! I thought you were here to help."
+        return "Good luck, traveler."
+
+# Example Characters and Combat
+player = Character("Mario", 100)
+boss = Character("Shadow Overlord", 150)
+combat_system = Combat(player, boss)
+
+# Adding items to inventory for testing edge cases
+healing_potion = Item("healing Potion", "heal")
+player.inventory.add_item(healing_potion)
+
+#Dialogue and Story Interaction (Simulated LLM Content)
+dialogue_manager = DialogueManager()
+
+# Playtesting Structure 
+def playtest():
+    # Adaptive dialogue test
+    logging.info("\n--- Dialogue Testing ---")
+    player_choice = input("Do you choose to (help/ignore) the NPC? ")
+    dialogue_manager.display_dialogue(NPC("Mystic Toad", "Thank you for helping me."), player_choice)
+    
+    # Edge case handling for missing item
+    logging.info("\n--- Combat Testing ---")
+    combat_system.engage_combat()
+
+# NPC Class for testing purposes 
+class NPC:
+    def __init__(self, name, dialogue):
+        self.name = name
+        self.dialogue = dialogue
+
+# Running the playtest
+playtest()
+
+# Week 3: Final Adjustments, Debugging, and User Feedback
+ 
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+# Random Event Generator for Exploration
+class RandomEventGenerator:
+    def generate_event(self, player):
+        event_type = random.choice(['item', 'enemy', 'nothing'])
+        if event_type == 'item':
+            self.find_item_event(player)
+        elif event_type == 'enemy':
+            self.enemy_encounter_event(player)
+        else:
+            logging.info("You continue exploring without any encounters.")
+
+    def find_item_event(self, player):
+        item = Item(name="Mushroom of Power", effect="heal")
+        player.inventory.add_item(item)
+        logging.info(f"Event: {player.name} found a hidden item: {item.name}!")
+        
