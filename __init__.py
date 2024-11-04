@@ -391,3 +391,130 @@ class RandomEventGenerator:
         player.inventory.add_item(item)
         logging.info(f"Event: {player.name} found a hidden item: {item.name}!")
         
+    def enemy_encounter_event(self, player):
+        enemy = Character("Shadow Minion", health=30)
+        combat_system = Combat(player, enemy)
+        logging.info("Event: A weak enemy appeared!")
+        combat_system.engage_combat()
+
+# Combat Class with Turn-Based System
+class Combat:
+    def __init__(self, player, enemy):
+        self.player = player
+        self.enemy = enemy
+
+    def calculate_damage(self, attacker):
+        return random.randint(5, 20) # Reduced damage for minor enemies
+    
+    def engage_combat(self):
+        logging.info(f"{self.player.name} is in combat with {self.enemy.name}!")
+
+        while self.player.health > 0 and self.enemy.health > 0:
+            damage = self.calculate_damage(self.player)
+            logging.info(f"{self.player.name} attacks {self.enemy.name} for {damage} damage!")
+            self.enemy.take_damage(damage)
+
+            if self.enemy.health <= 0:
+                logging.info(f"{self.player.name} defeated!")
+                return True
+            
+            # Enemy's turn
+            damage = self.calculate_damage(self.enemy)
+            logging.info(f"{self.enemy.name} attacks {self.player.name} for {damage} damage!")
+            if not self.player.take_damage(damage):
+                logging.info("You were defeated by the enemy.")
+                return False
+            
+# Character Class
+class Character:
+    def __init__(self, name, health):
+        self.name = name
+        self.health = health
+        self.inventory = Inventory()
+
+    def take_damage(self, amount):
+        self.health -= amount
+        logging.info(f"{self.name}'s health: {self.health}")
+        return self.health > 0
+    
+    def use_item(self, item):
+        item.apply_effect(self)
+        logging.info(f"{self.name} uses {item.name} and gains effect: {item.effect}")
+
+# Inventory Management
+class Inventory:
+    def __init__(self):
+        self.items = []
+
+    def add_item(self, item):
+        self.items.append(item)
+        logging.info(f"Added item: {item.name}")
+
+    def use_item(self):
+        if self.items:
+            return self.items.pop(0)
+        return None
+
+# Item Class
+class Item:
+    def __init__(self, name, effect):
+        self.name = name
+        self.effect = effect
+
+    def apply_effect(self, character):
+        if self.effect == "heal":
+            character.health += 20
+            logging.info(f"{character.name} heals and now has {character.health} health.")
+
+# Dialogue Manager (Simualted)
+class DialogueManager:
+    def display_dialogue(self, npc, player_choice):
+        response = self.generate_npc_response(npc, player_choice)
+        logging.info(f"{npc.name}: {response}")
+
+    def generate_npc_response(self, npc, player_choice):
+        if player_choice == "help":
+            return "Thank you for your help, brave hero!"
+        elif player_choice == "ignore":
+            return "I hoped you would help... but I see you have other priorities."
+        
+# Playtesting and User Feedback Preparation
+def playtest():
+    player = Character("Mario", 100)
+    boss = Character("Shadow Overlord", 150)
+    random_event_generator = RandomEventGenerator()
+
+    # Testing dialogue interactions
+    logging.info("\n--- Random Event Testing ---")
+    random_event_generator.generate_event(player)
+
+    # Testing random event generation
+    logging.info("\n--- Random Event Testing ---")
+    random_event_generator.generate_event(player)
+
+    # Testing combat with boss
+    combat_system = Combat(player, boss)
+    logging.info("\n--- Boss Combat Testing ---")
+    combat_system.engage_combat()
+
+# NPC Class for Dialogue Testing
+class NPC:
+    def __init__(self, name, dialogue):
+        self.name = name
+        self.dialogue = dialogue
+
+# Run playtest
+playtest()
+
+# Documentation for Finalization 
+def create_documentation():
+    logging.info("\n--- Documentation and User Guide ---")
+    logging.info("Welcome to 'Mario's Warriors' Game!")
+    logging.info("In this game, you will explore, fight, and make decisions to protect the Mushroom Kingdom.")
+    logging.info("Character Actions:\n- Choose actions in combat\n- Interact with NPCs for quests\n- Use items to regain health.")
+    logging.info("Objective:\n- Defeat the Shadow Overload to restore peace.")
+    logging.info("Explore, choose wisely, and become a hero!")
+
+# Finalization call
+create_documentation
+        

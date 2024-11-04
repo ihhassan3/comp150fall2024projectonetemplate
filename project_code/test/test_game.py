@@ -149,3 +149,94 @@ class TestItem(unittest.TestCase):
 # Main test runner
 if __name__ == "__main__":
     unittest.main()
+
+import unittest 
+from unittest.mock import patch
+from your_game_module import RandomEventGenerator, StoryManager, Combat, Inventory, NPC
+
+class TestRandomEventGenerator(unittest.TestCase):
+    def setUp(self):
+        self.event_generator = RandomEventGenerator()
+
+    @patch('random.choice')
+    def test_generate_event_rewards(self, mock_choice):
+        mock_choice.return_value = "found hidden item"
+        event = self.event_generator_event()
+        self.assertIn("item", event, "Random event should generate a reward or hidden item")
+
+    @patch('random.choice')
+    def test_generate_event_encounters(self, mock_choice):
+        mock_choice.return_value = "enemy encounter"
+        event = self.event_generator.generate_event()
+        self.assertIn("enemy", event, "Random event should generate an enemy encounter")
+
+class TestCombatMechanics(unittest.TestCase):
+    def setUp(self):
+        # Setup with mock players and boss for combat
+        self.player = Combat("Player", health=100, attack_power=20)
+        self.boss = Combat("Shadow Overlord", health=150, attack_power=30)
+
+    def test_engage_combat(self):
+        result = self.player.engage_combat(self.player, self.boss)
+        self.assertIn(result, ["win", "lose"], "Combat result should be 'win' or 'lose'")
+        
+    def test_calculate_damage(self):
+        damage = self.player.calculate_damage()
+        self.assertTrue(0 < damage <= self.player.attack_power, "Damage should be within attack power range")
+
+class TestStoryManager(unittest.TestCase):
+    def setUp(self):
+        self.story_manager = StoryManager()
+        self.npc = NPC(name="Friednly NPC", is_ally=False, quest_giver=True)
+    
+    def test_update_story_path(self):
+        self.story_manager.update_story_path("Rescue the village")
+        self.assertIn("Rescue the village", self.story_manager.story_path, "Story path should update with new quests")
+
+    def test_check_moral_choice(self):
+        choice = self.story_manager.check_moral_choice("help")
+        self.assertEqual(choice, "ally gained", "Moral choice 'help' should add an ally")
+
+    def test_unlock_story_arc(self):
+        self.story_manager.unlock_story_arc("village_saved")
+        self.assertTrue(self.story_manager.arcs_unlocked["village_saved"], "Story arc should be unlocked after the event")
+
+class TestInventoryManagement(unittest.TestCase):
+    def setUp(self):
+        self.inventory = Inventory()
+        self.inventory.add_item("Health Potion", 1)
+
+    def test_add_item(self):
+        self.inventory.add_item("Magic Relic", 1)
+        self.assertIn("Magic Relic", self.inventory.items, "Magic Relic should be added to inventory")
+
+    def test_use_item(self):
+        result = self.inventory.use_item("Health Potion")
+        self.assertEqual(result, "Health restored", "Using a Health Potion should restore health")
+
+    def test_use_item_insufficient_quantity(self):
+        result = self.inventory.use_item("Magic Relic")
+        self.assertEqual(result, "Item not available", "Using an unavailble item should return an error message")
+
+class TestUserFeedbackAdjustments(unittest.TestCase):
+    def setUp(self):
+        self.story_manager = StoryManager()
+        self.inventory = Inventory()
+        self.npc = NPC(name="Helpful NPC", is_ally=False, quest_giver=True)
+
+    def test_user_feedback_story_path(self):
+        self.story_manager.update_story_path("Explore dungeon")
+        self.assertIn("Explore dungeon", self.story_manager.story_path, "story path should reflect user feedback adjustments")
+
+    def test_inventory_adjustments(self):
+        # Adjust inventory based on user feedback to make certain items more accessible
+        self.inventory.add_item("Rare Amulet", 1)
+        self.assertIn("Rare Amulet", self.inventory.items, "Rare Amulet should be in inventory for easier access")
+
+    def test_combat_difficulty_adjustment(self):
+        # Adjusting combat difficulty based on user feedback
+        self.player = Combat("Player", health=150, attack_power=25)
+        self.assertGreaterEqual(self.player.health, 100, "Player health should be increased based on user feedback")
+
+if __name__ == "__main__":
+    unittest.main()       
