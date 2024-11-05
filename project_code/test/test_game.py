@@ -4,7 +4,7 @@ import os
 # Add the root directory of the project to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
-from project_code.src.main import Statistic, Character, Event
+from project_code.src.main import Statistic, Character, Event, Item, DialogueManager
 import unittest
 
 class TestStatistic(unittest.TestCase):
@@ -152,7 +152,7 @@ if __name__ == "__main__":
 
 import unittest 
 from unittest.mock import patch
-from your_game_module import RandomEventGenerator, StoryManager, Combat, Inventory, NPC
+from unittest import RandomEventGenerator, StoryManager, Combat, Inventory, NPC
 
 class TestRandomEventGenerator(unittest.TestCase):
     def setUp(self):
